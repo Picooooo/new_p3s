@@ -115,13 +115,13 @@ def run_experiment(variant):
     else:
         env = dummy([normalize(ENVIRONMENTS[domain][task](**env_params)) for _ in range(num_actors)])
     dict_ph = _init_placeholder(env)
-
+    #tao sample
     sampler_params['min_pool_size']=algorithm_params['base_kwargs']['n_initial_exploration_steps']
 
     sampler = DummySampler(num_envs=num_actors, **sampler_params)
-
+    #lay so step hoac so epoch
     base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
-
+    #tao replay buffer
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
 
     arr_initial_exploration_policy = [UniformPolicy(env_spec=env.spec) for _ in range(num_actors)]
