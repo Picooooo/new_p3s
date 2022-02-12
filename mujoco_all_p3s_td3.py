@@ -123,13 +123,16 @@ def run_experiment(variant):
     base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
     #tao replay buffer
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
-
+    
+    #tao mang policy cho moi actor
     arr_initial_exploration_policy = [UniformPolicy(env_spec=env.spec) for _ in range(num_actors)]
-
+    
+    #Tao mang actor de train
     arr_actor = [Actor(actor_num=i) for i in range(num_actors)]
+    
     for actor in arr_actor:
         init_actor(actor, pool, dict_ph, env, num_q, value_fn_params, noise_params)
-
+    #with best = true lua ra best acotr
     if with_best:
         best_actor = Actor(actor_num=num_actors)
         init_actor(best_actor, pool, dict_ph, env, num_q, value_fn_params, noise_params)
@@ -161,6 +164,7 @@ def run_experiment(variant):
 
 
 def launch_experiments(variant_generator, args):
+    # Lay variant de truyen vao experiment
     variants = variant_generator.variants()
     # TODO: Remove unflatten. Our variant generator should support nested params
     variants = [unflatten(variant, separator='.') for variant in variants]
@@ -176,7 +180,7 @@ def launch_experiments(variant_generator, args):
         experiment_prefix = variant['prefix'] + '/' + args.exp_name
         experiment_name = '{prefix}-{exp_name}-{i:02}'.format(
             prefix=variant['prefix'], exp_name=args.exp_name, i=i)
-
+        #train
         run_td3_experiment(
             run_experiment,
             mode=args.mode,
