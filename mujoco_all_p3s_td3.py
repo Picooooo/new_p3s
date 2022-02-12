@@ -55,7 +55,7 @@ DEFAULT_DOMAIN = DEFAULT_ENV = 'ant' #'half-cheetah'
 AVAILABLE_DOMAINS = set(ENVIRONMENTS.keys())
 AVAILABLE_TASKS = set(y for x in ENVIRONMENTS.values() for y in x.keys())
 DELAY_FREQ = 20
-
+# neu moi truong co delayed thi co su dung delay frequency ( chua hieu no lam)
 # TARGET_RANGE = 0.1      # d_min in the paper
 # TARGET_RATIO = 2        # rho in the paper
 # UPDATE_BEST_ITER = 1    # UPDATE_BEST_ITER = 1 corresponds to M = 250
@@ -81,6 +81,7 @@ def parse_args():
     env_name = args.env
     if 'delayed' in args.env:
         env_name = env_name + '_' + str(DELAY_FREQ)
+    #Neu có delay thi doi ten log dir
     #args.log_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'log', env_name, 'P3S-TD3'))
     args.log_dir = "/results/" + env_name + "/"
     return args
@@ -104,7 +105,10 @@ def run_experiment(variant):
     target_range = algorithm_params['target_range']
     target_ratio = algorithm_params['target_ratio']
     best_update_interval = algorithm_params['best_update_interval']
+    
+    #Lay tham so tu variant
 
+    #tao tham so cua moi truong nhu la huong di, maps
     if 'delayed' in domain:
         print('Delayed!!!!!!!!!!!!!!!')
         env = dummy([delay(normalize(ENVIRONMENTS[domain][task](**env_params)), DELAY_FREQ) for _ in range(num_actors)])
