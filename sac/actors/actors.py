@@ -13,7 +13,8 @@ class Actor(object):
         self.targetpolicy = None
         self.pool = None
         self.eval_pool = None
-        self.arr_qf = None
+        self.arr_qf1 = None
+        self.arr_qf2 = None
         self.arr_target_qf = None
         self.arr_prior_qf = None
         self.vf = None
@@ -44,14 +45,22 @@ class Actor(object):
         with tf.variable_scope(self._scope_name):
             return self.targetpolicy.get_params_internal()
 
-    def qf_params(self):
-        if self.arr_qf is None:
+    def qf1_params(self):
+        if self.arr_qf1 is None:
             return []
         params = []
         with tf.variable_scope(self._scope_name):
-            for qf in self.arr_qf:
+            for qf in self.arr_qf1:
                 params = params + qf.get_params_internal()
         return params
+
+    def qf2_params(self):
+        if self.arr_qf2 is None:
+            return []
+        params = []
+        with tf.variable_scope(self._scope_name):
+            for qf in self.arr_qf2:
+                params = params + qf.get_params_interval()
 
     def target_qf_params(self):
         if self.arr_target_qf is None:

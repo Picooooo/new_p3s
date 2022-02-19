@@ -1,7 +1,7 @@
 import numpy as np
 
 from rllab.misc.instrument import VariantGenerator
-from td3.misc.utils import flatten, get_git_rev, deep_update
+from sac.misc.utils import flatten, get_git_rev, deep_update
 
 # M = 256
 M1 = 400

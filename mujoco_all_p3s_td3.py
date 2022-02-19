@@ -7,21 +7,21 @@ import tensorflow as tf
 import numpy as np
 
 from rllab.envs.normalized_env import normalize
-from td3.envs.vec_env.dummy_vec_env import dummy
+from sac.envs.vec_env.dummy_vec_env import dummy
 from rllab import config
 
-from td3.algos import P3S_TD3
-from td3.envs import GymEnv, delay
+from sac.algos import P3S_SAC
+from sac.envs import GymEnv, delay
 
-from td3.misc.instrument import run_td3_experiment
-from td3.misc.utils import timestamp, unflatten
-from td3.misc.tf_utils import *
-from td3.policies import DeterministicPolicy, UniformPolicy
-from td3.misc.sampler import DummySampler
-from td3.replay_buffers import SimpleReplayBuffer
-from td3.value_functions import NNQFunction, NNVFunction
+from sac.misc.instrument import run_td3_experiment
+from sac.misc.utils import timestamp, unflatten
+from sac.misc.tf_utils import *
+from sac.policies import DeterministicPolicy, UniformPolicy
+from sac.misc.sampler import DummySampler
+from sac.replay_buffers import SimpleReplayBuffer
+from sac.value_functions import NNQFunction, NNVFunction
 from variants_p3s import parse_domain_and_task, get_variants
-from td3.actors.actors import Actor
+from sac.actors.actors import Actor
 from plot import plot_all_experiments
 
 ENVIRONMENTS = {

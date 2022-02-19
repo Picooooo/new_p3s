@@ -7,9 +7,9 @@ import numpy as np
 from rllab.misc import logger
 from rllab.algos.base import Algorithm
 
-from td3.core.serializable import deep_clone
-from td3.misc import tf_utils
-from td3.misc.sampler import rollouts
+from sac.core.serializable import deep_clone
+from sac.misc import tf_utils
+from sac.misc.sampler import rollouts
 
 
 class MARLAlgorithm(Algorithm):

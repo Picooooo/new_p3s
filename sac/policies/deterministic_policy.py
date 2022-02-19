@@ -6,9 +6,9 @@ from rllab.misc.overrides import overrides
 from rllab.misc import logger
 from rllab.core.serializable import Serializable
 
-from td3.policies import NNPolicy
-from td3.misc import tf_utils
-from td3.misc.mlp import mlp
+from sac.policies import NNPolicy
+from sac.misc import tf_utils
+from sac.misc.mlp import mlp
 
 EPS = 1e-6
 
