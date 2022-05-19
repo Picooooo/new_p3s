@@ -13,7 +13,7 @@ from rllab import config
 from sac.algos import P3S_SAC
 from sac.envs import GymEnv, delay
 
-from sac.misc.instrument import run_td3_experiment
+from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp, unflatten
 from sac.misc.tf_utils import *
 from sac.policies import DeterministicPolicy, UniformPolicy
@@ -51,7 +51,7 @@ ENVIRONMENTS = {
     },
 }
 
-DEFAULT_DOMAIN = DEFAULT_ENV = 'ant' #'half-cheetah'
+DEFAULT_DOMAIN = DEFAULT_ENV = 'ant'  # 'half-cheetah'
 AVAILABLE_DOMAINS = set(ENVIRONMENTS.keys())
 AVAILABLE_TASKS = set(y for x in ENVIRONMENTS.values() for y in x.keys())
 DELAY_FREQ = 20
@@ -59,6 +59,7 @@ DELAY_FREQ = 20
 # TARGET_RANGE = 0.1      # d_min in the paper
 # TARGET_RATIO = 2        # rho in the paper
 # UPDATE_BEST_ITER = 1    # UPDATE_BEST_ITER = 1 corresponds to M = 250
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -81,10 +82,11 @@ def parse_args():
     env_name = args.env
     if 'delayed' in args.env:
         env_name = env_name + '_' + str(DELAY_FREQ)
-    #Neu có delay thi doi ten log dir
+    # Neu có delay thi doi ten log dir
     #args.log_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'log', env_name, 'P3S-TD3'))
     args.log_dir = "/results/" + env_name + "/"
     return args
+
 
 def run_experiment(variant):
     env_params = variant['env_params']
@@ -105,41 +107,46 @@ def run_experiment(variant):
     target_range = algorithm_params['target_range']
     target_ratio = algorithm_params['target_ratio']
     best_update_interval = algorithm_params['best_update_interval']
-    
-    #Lay tham so tu variant
 
-    #tao tham so cua moi truong nhu la huong di, maps
+    # Lay tham so tu variant
+
+    # tao tham so cua moi truong nhu la huong di, maps
     if 'delayed' in domain:
         print('Delayed!!!!!!!!!!!!!!!')
-        env = dummy([delay(normalize(ENVIRONMENTS[domain][task](**env_params)), DELAY_FREQ) for _ in range(num_actors)])
+        env = dummy([delay(normalize(ENVIRONMENTS[domain][task](
+            **env_params)), DELAY_FREQ) for _ in range(num_actors)])
     else:
-        env = dummy([normalize(ENVIRONMENTS[domain][task](**env_params)) for _ in range(num_actors)])
+        env = dummy([normalize(ENVIRONMENTS[domain][task](**env_params))
+                    for _ in range(num_actors)])
     dict_ph = _init_placeholder(env)
-    #tao sample
-    sampler_params['min_pool_size']=algorithm_params['base_kwargs']['n_initial_exploration_steps']
+    # tao sample
+    sampler_params['min_pool_size'] = algorithm_params['base_kwargs']['n_initial_exploration_steps']
 
     sampler = DummySampler(num_envs=num_actors, **sampler_params)
-    #lay so step hoac so epoch
+    # lay so step hoac so epoch
     base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
-    #tao replay buffer
+    # tao replay buffer
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
-    
-    #tao mang policy cho moi actor
-    arr_initial_exploration_policy = [UniformPolicy(env_spec=env.spec) for _ in range(num_actors)]
-    
-    #Tao mang actor de train
+
+    # tao mang policy cho moi actor
+    arr_initial_exploration_policy = [UniformPolicy(
+        env_spec=env.spec) for _ in range(num_actors)]
+
+    # Tao mang actor de train
     arr_actor = [Actor(actor_num=i) for i in range(num_actors)]
-    
+
     for actor in arr_actor:
-        init_actor(actor, pool, dict_ph, env, num_q, value_fn_params, noise_params)
-    #with best = true lua ra best acotr
+        init_actor(actor, pool, dict_ph, env, num_q,
+                   value_fn_params, noise_params)
+    # with best = true lua ra best acotr
     if with_best:
         best_actor = Actor(actor_num=num_actors)
-        init_actor(best_actor, pool, dict_ph, env, num_q, value_fn_params, noise_params)
+        init_actor(best_actor, pool, dict_ph, env,
+                   num_q, value_fn_params, noise_params)
     else:
         best_actor = None
 
-    algorithm = P3S_TD3(
+    algorithm = P3S_SAC(
         base_kwargs=base_kwargs,
         env=env,
         arr_actor=arr_actor,
@@ -180,8 +187,8 @@ def launch_experiments(variant_generator, args):
         experiment_prefix = variant['prefix'] + '/' + args.exp_name
         experiment_name = '{prefix}-{exp_name}-{i:02}'.format(
             prefix=variant['prefix'], exp_name=args.exp_name, i=i)
-        #train
-        run_td3_experiment(
+        # train
+        run_sac_experiment(
             run_experiment,
             mode=args.mode,
             variant=variant,
@@ -204,24 +211,34 @@ def main():
     if (not domain) or (not task):
         domain, task = parse_domain_and_task(args.env)
 
-    variant_generator = get_variants(domain=domain, task=task, policy=args.policy)
+    variant_generator = get_variants(
+        domain=domain, task=task, policy=args.policy)
     launch_experiments(variant_generator, args)
     plot_all_experiments(args.log_dir, args.env)
+
 
 def _init_placeholder(env):
     Da = env.action_space.flat_dim
     Do = env.observation_space.flat_dim
     num_actors = env.num_envs
 
-    iteration_ph = get_placeholder(name='iteration', dtype=tf.int64, shape=None)
-    observations_ph = get_placeholder(name='observations', dtype=tf.float32, shape=(None, Do))
-    next_observations_ph = get_placeholder(name='next_observations', dtype=tf.float32, shape=(None, Do))
-    actions_ph = get_placeholder(name='actions', dtype=tf.float32,shape=(None, Da))
-    next_actions_ph = get_placeholder(name='next_actions', dtype=tf.float32, shape=(None, Da))
-    rewards_ph = get_placeholder(name='rewards', dtype=tf.float32,shape=(None,))
-    terminals_ph = get_placeholder(name='terminals', dtype=tf.float32,shape=(None,))
-    not_best_ph = get_placeholder(name='not_best', dtype=tf.float32,shape=(num_actors,))
-    beta_ph = get_placeholder(name='beta', dtype=tf.float32,shape=None)
+    iteration_ph = get_placeholder(
+        name='iteration', dtype=tf.int64, shape=None)
+    observations_ph = get_placeholder(
+        name='observations', dtype=tf.float32, shape=(None, Do))
+    next_observations_ph = get_placeholder(
+        name='next_observations', dtype=tf.float32, shape=(None, Do))
+    actions_ph = get_placeholder(
+        name='actions', dtype=tf.float32, shape=(None, Da))
+    next_actions_ph = get_placeholder(
+        name='next_actions', dtype=tf.float32, shape=(None, Da))
+    rewards_ph = get_placeholder(
+        name='rewards', dtype=tf.float32, shape=(None,))
+    terminals_ph = get_placeholder(
+        name='terminals', dtype=tf.float32, shape=(None,))
+    not_best_ph = get_placeholder(
+        name='not_best', dtype=tf.float32, shape=(num_actors,))
+    beta_ph = get_placeholder(name='beta', dtype=tf.float32, shape=None)
 
     d = {
         'iteration_ph': iteration_ph,
@@ -280,6 +297,7 @@ def init_actor(actor, pool, dict_ph, env, num_q, value_fn_params, noise_params):
                                                    action_ph=dict_ph['next_actions_ph']))
 
         actor.pool = pool
+
 
 if __name__ == '__main__':
     main()

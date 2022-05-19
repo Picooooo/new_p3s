@@ -8,6 +8,7 @@ from sac.misc.utils import PROJECT_PATH
 
 DEFAULT_LOG_DIR = PROJECT_PATH + "/data"
 
+
 def _create_symlink(folder):
     # Create a symbolic link that points to the sac folder and include it
     # in the tarball.
@@ -22,7 +23,7 @@ def _create_symlink(folder):
     return include_path
 
 
-def run_td3_experiment(main, mode, include_folders=None, log_dir=None,
+def run_sac_experiment(main, mode, include_folders=None, log_dir=None,
                        exp_prefix="experiment", exp_name=None, **kwargs):
     if exp_name is None:
         exp_name = timestamp()
@@ -41,7 +42,7 @@ def run_td3_experiment(main, mode, include_folders=None, log_dir=None,
         include_folders = list()
 
     if mode == 'ec2':
-        include_folders.append('td3')
+        include_folders.append('sac')
         all_symlinks = list()
 
         for folder in include_folders:
