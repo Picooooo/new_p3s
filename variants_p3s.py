@@ -208,7 +208,7 @@ SAMPLER_PARAMS = {
 }
 
 RUN_PARAMS_BASE = {
-    'seed': [1,2,3,4,5,6,7,8,9,10],  #nums variants
+    'seed': [1], #[1,2,3,4,5,6,7,8,9,10],  #nums variants
     'snapshot_mode': 'gap',
     'snapshot_gap': 1000,
     'sync_pkl': True,

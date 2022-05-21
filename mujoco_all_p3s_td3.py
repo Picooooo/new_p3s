@@ -76,13 +76,15 @@ def parse_args():
     parser.add_argument('--env', type=str, default=DEFAULT_ENV)
     parser.add_argument('--exp_name', type=str, default=timestamp())
     parser.add_argument('--mode', type=str, default='local')
+    parser.add_argument('--seed', type=int)
+    parser.add_argument('--step', type=int, default=1e6)
     args = parser.parse_args()
 
     env_name = args.env
     if 'delayed' in args.env:
         env_name = env_name + '_' + str(DELAY_FREQ)
     #args.log_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'log', env_name, 'P3S-TD3'))
-    args.log_dir = "/results/" + env_name + "/"
+    args.log_dir = "./results/" + env_name + "/"
     return args
 
 def run_experiment(variant):
@@ -180,7 +182,7 @@ def launch_experiments(variant_generator, args):
             exp_prefix=experiment_prefix,
             exp_name=experiment_name,
             n_parallel=1,
-            seed=run_params['seed'],
+            seed=args.seed,
             terminate_machine=True,
             log_dir=args.log_dir,
             snapshot_mode=run_params['snapshot_mode'],
