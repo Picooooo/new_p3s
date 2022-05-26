@@ -139,52 +139,52 @@ ALGORITHM_PARAMS = {
     'hopper': { # 3 DoF
         'target_range': 0.05, # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
         }
     },
     'half-cheetah': { # 6 DoF
         'target_range': 0.05,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
             'n_initial_exploration_steps': 10000,
         }
     },
     'walker': { # 6 DoF
         'target_range': 0.02,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
         }
     },
     'ant': { # 8 DoF
         'target_range': 0.02,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
             'n_initial_exploration_steps': 10000,
         }
     },
     'delayed_hopper': { # 3 DoF
         'target_range': 0.02,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
         }
     },
     'delayed_half-cheetah': { # 6 DoF
         'target_range': 0.02,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
             'n_initial_exploration_steps': 10000,
         }
     },
     'delayed_walker': { # 6 DoF
         'target_range': 0.02,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
         }
     },
     'delayed_ant': { # 8 DoF
         'target_range': 0.05,  # d_min
         'base_kwargs': {
-            'n_epochs': int(1e3 + 1),
+            'n_epochs': int(4e3 + 1),
             'n_initial_exploration_steps': 10000,
         }
     },
@@ -208,7 +208,7 @@ SAMPLER_PARAMS = {
 }
 
 RUN_PARAMS_BASE = {
-    'seed': [1,2,3,4,5,6,7,8,9,10],  #nums variants
+    'seed': [1],  #nums variants
     'snapshot_mode': 'gap',
     'snapshot_gap': 1000,
     'sync_pkl': True,
