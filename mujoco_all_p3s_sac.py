@@ -23,7 +23,7 @@ from sac.value_functions import NNQFunction, NNVFunction
 from variants_p3s import parse_domain_and_task, get_variants
 from sac.actors.actors import Actor
 from plot import plot_all_experiments
-
+from plot import plot_one_experiments
 ENVIRONMENTS = {
     'ant': {
         'default': lambda: GymEnv('Ant-v2'),
@@ -77,6 +77,7 @@ def parse_args():
     parser.add_argument('--env', type=str, default=DEFAULT_ENV)
     parser.add_argument('--exp_name', type=str, default=timestamp())
     parser.add_argument('--mode', type=str, default='local')
+    parser.add_argument('--seed', type=int)
     args = parser.parse_args()
 
     env_name = args.env
@@ -195,7 +196,7 @@ def launch_experiments(variant_generator, args):
             exp_prefix=experiment_prefix,
             exp_name=experiment_name,
             n_parallel=1,
-            seed=run_params['seed'],
+            seed=args.seed,
             terminate_machine=True,
             log_dir=args.log_dir,
             snapshot_mode=run_params['snapshot_mode'],
@@ -214,7 +215,7 @@ def main():
     variant_generator = get_variants(
         domain=domain, task=task, policy=args.policy)
     launch_experiments(variant_generator, args)
-    plot_all_experiments(args.log_dir, args.env)
+    plot_one_experiments(args.log_dir, args.env, args.seed)
 
 
 def _init_placeholder(env):
