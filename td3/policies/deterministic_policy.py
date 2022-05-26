@@ -46,16 +46,16 @@ class DeterministicPolicy(NNPolicy, Serializable):
         self.build()
 
         self._scope_name = (
-            tf.get_variable_scope().name + "/" + name
+            tf.compat.v1.get_variable_scope().name + "/" + name
         ).lstrip("/")
 
         super(NNPolicy, self).__init__(env_spec)
 
     def actions_for(self, observations,
-                    name=None, reuse=tf.AUTO_REUSE):
+                    name=None, reuse=tf.compat.v1.AUTO_REUSE):
         name = name or self.name
 
-        with tf.variable_scope(name, reuse=reuse):
+        with tf.compat.v1.variable_scope(name, reuse=reuse):
             if self._squash:
                 output_nonlinearity = tf.nn.tanh
             else:
@@ -70,10 +70,10 @@ class DeterministicPolicy(NNPolicy, Serializable):
         return self._actions
 
     def dist(self, other):
-        return tf.reduce_mean(0.5 * tf.square(other._actions - self._actions), axis=-1)
+        return tf.reduce_mean(input_tensor=0.5 * tf.square(other._actions - self._actions), axis=-1)
 
     def build(self):
-        with tf.variable_scope(self.name):
+        with tf.compat.v1.variable_scope(self.name):
             if self._squash:
                 output_nonlinearity = tf.nn.tanh
             else:
@@ -88,7 +88,7 @@ class DeterministicPolicy(NNPolicy, Serializable):
     @overrides
     def get_actions(self, observations):
         feed_dict = {self._observations_ph: observations}
-        actions = np.array(tf.get_default_session().run(self._actions, feed_dict))
+        actions = np.array(tf.compat.v1.get_default_session().run(self._actions, feed_dict))
 
         if self._is_deterministic:
             return actions

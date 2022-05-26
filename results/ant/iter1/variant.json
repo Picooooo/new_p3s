@@ -1,0 +1,61 @@
+{
+  "_hidden_keys": [],
+  "algorithm_params": {
+    "base_kwargs": {
+      "epoch_length": 1000,
+      "eval_deterministic": true,
+      "eval_n_episodes": 10,
+      "eval_render": false,
+      "n_epochs": 1001,
+      "n_initial_exploration_steps": 10000,
+      "n_train_repeat": 1
+    },
+    "best_update_interval": 1,
+    "beta": 0.5,
+    "discount": 0.99,
+    "lr": 0.001,
+    "num_actors": 4,
+    "num_q": 2,
+    "policy_update_interval": 2,
+    "reparameterize": true,
+    "target_range": 0.02,
+    "target_ratio": 2,
+    "tau": 0.005,
+    "with_best": true
+  },
+  "domain": "ant",
+  "env_params": {},
+  "exp_name": "ant/default-2022-05-26-12-20-00-256520-+07-00",
+  "git_sha": null,
+  "noise_params": {
+    "exploration_policy_noise_scale": 0.1,
+    "noise_clip": 0.5,
+    "target_policy_noise_scale": 0.2
+  },
+  "policy_params": {
+    "action_prior": "uniform",
+    "reg": 0.001,
+    "reparameterize": true,
+    "type": "deterministic"
+  },
+  "prefix": "ant/default",
+  "replay_buffer_params": {
+    "max_replay_buffer_size": 1000000.0
+  },
+  "run_params": {
+    "seed": 1,
+    "snapshot_gap": 2000,
+    "snapshot_mode": "gap",
+    "sync_pkl": true
+  },
+  "sampler_params": {
+    "batch_size": 100,
+    "max_path_length": 1000,
+    "min_pool_size": 1000
+  },
+  "task": "default",
+  "value_fn_params": {
+    "layer_size1": 400,
+    "layer_size2": 300
+  }
+}

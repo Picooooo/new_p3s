@@ -170,7 +170,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
         # policy actions are sampled from.
 
         self._save_full_state = save_full_state
-        self._saver = tf.train.Saver(max_to_keep=1000)
+        self._saver = tf.compat.v1.train.Saver(max_to_keep=1000)
         self._save_dir = '/home/wisrl/wyjung/Result/log/Mujoco/ant_delay20/test_IPE_TD3_NA4_TRatio2_Trange0.03_update1_ver3_new_201906/iter6/'
         # '/test_IPE_TD3_NA' + str(NUM_ACTORS) + '_TRatio' + str(TARGET_RATIO) + '_TRange' + str(
         #     TARGET_RANGE) + '_update' + str(UPDATE_BEST_ITER) + '_ver' + str(VERSION) + '_new_201906'
@@ -190,8 +190,8 @@ class P3S_TD3(MARLAlgorithm, Serializable):
             self._init_target_ops(actor=actor)
             self._init_update_old_new_ops(actor=actor)
 
-        self._sess.run(tf.variables_initializer([
-            variable for variable in tf.global_variables()
+        self._sess.run(tf.compat.v1.variables_initializer([
+            variable for variable in tf.compat.v1.global_variables()
             if 'low_level_policy' not in variable.name
         ]))
 
@@ -201,7 +201,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
             source_params = actor.current_params()
             target_params = actor.target_params()
             copy_ops = [
-                tf.assign(target, source)
+                tf.compat.v1.assign(target, source)
                 for target, source in zip(target_params, source_params)
             ]
 
@@ -211,7 +211,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
             source_params = self._best_actor.current_params()
             target_params = self._best_actor.target_params()
             copy_ops = [
-                tf.assign(target, source)
+                tf.compat.v1.assign(target, source)
                 for target, source in zip(target_params, source_params)
             ]
 
@@ -222,7 +222,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
                 target_params = actor.trainable_params()
 
                 copy_ops = [
-                    tf.assign(target, source)
+                    tf.compat.v1.assign(target, source)
                     for target, source in zip(target_params, source_params)
                 ]
 
@@ -246,35 +246,35 @@ class P3S_TD3(MARLAlgorithm, Serializable):
 
         arr_td_loss_t = []
         for qf in actor.arr_qf:
-            arr_td_loss_t.append(tf.reduce_mean((ys - qf.output_t)**2))
+            arr_td_loss_t.append(tf.reduce_mean(input_tensor=(ys - qf.output_t)**2))
 
         td_loss_t = tf.add_n(arr_td_loss_t)
-        qf_train_op = tf.train.AdamOptimizer(self._qf_lr).minimize(
+        qf_train_op = tf.compat.v1.train.AdamOptimizer(self._qf_lr).minimize(
             loss=td_loss_t, var_list=actor.qf_params())
         actor.qf_training_ops = qf_train_op
         print('qf params:', actor.qf_params())
         print("target qf param: ", actor.target_qf_params())
 
     def _init_actor_update(self, actor):
-        with tf.variable_scope(actor.name, reuse=tf.AUTO_REUSE):
-            qf_t = actor.arr_qf[0].get_output_for(self._dict_ph['observations_ph'], actor.policy.action_t, reuse=tf.AUTO_REUSE)
+        with tf.compat.v1.variable_scope(actor.name, reuse=tf.compat.v1.AUTO_REUSE):
+            qf_t = actor.arr_qf[0].get_output_for(self._dict_ph['observations_ph'], actor.policy.action_t, reuse=tf.compat.v1.AUTO_REUSE)
 
         actor.oldkl = actor.policy.dist(actor.oldpolicy)
 
         if self._with_best:
             actor.bestkl = actor.policy.dist(self._best_actor.policy)
-            not_best_flag = tf.reduce_sum(self._dict_ph['not_best_ph'] * tf.one_hot(actor.actor_num, self._num_actor))
-            policy_kl_loss = tf.reduce_mean(-qf_t) + not_best_flag * self._dict_ph['beta_ph'] * tf.reduce_mean(actor.bestkl)
+            not_best_flag = tf.reduce_sum(input_tensor=self._dict_ph['not_best_ph'] * tf.one_hot(actor.actor_num, self._num_actor))
+            policy_kl_loss = tf.reduce_mean(input_tensor=-qf_t) + not_best_flag * self._dict_ph['beta_ph'] * tf.reduce_mean(input_tensor=actor.bestkl)
         else:
-            policy_kl_loss = tf.reduce_mean(-qf_t)
+            policy_kl_loss = tf.reduce_mean(input_tensor=-qf_t)
 
-        policy_regularization_losses = tf.get_collection(
-            tf.GraphKeys.REGULARIZATION_LOSSES,
+        policy_regularization_losses = tf.compat.v1.get_collection(
+            tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES,
             scope=actor.name + '/' + actor.policy.name)
 
         print("policy regular loss", policy_regularization_losses)
 
-        policy_regularization_loss = tf.reduce_sum(policy_regularization_losses)
+        policy_regularization_loss = tf.reduce_sum(input_tensor=policy_regularization_losses)
         policy_loss = (policy_kl_loss + policy_regularization_loss)
 
         # We update the vf towards the min of two Q-functions in order to
@@ -283,7 +283,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
         print("policy param: ", actor.policy_params())
         print("old policy param: ", actor.old_policy_params())
         print("target policy param: ", actor.target_policy_params())
-        policy_train_op = tf.train.AdamOptimizer(self._policy_lr).minimize(
+        policy_train_op = tf.compat.v1.train.AdamOptimizer(self._policy_lr).minimize(
             loss=policy_loss,
             var_list=actor.policy_params()
         )
@@ -295,7 +295,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
         target_params = actor.target_params()
 
         actor.target_ops = [
-            tf.assign(target, (1 - self._tau) * target + self._tau * source)
+            tf.compat.v1.assign(target, (1 - self._tau) * target + self._tau * source)
             for target, source in zip(target_params, source_params)
         ]
 
@@ -303,7 +303,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
         source_params = actor.policy_params()
         target_params = actor.old_policy_params()
         actor.copy_old_new_ops = [
-            tf.assign(target, source)
+            tf.compat.v1.assign(target, source)
             for target, source in zip(target_params, source_params)
         ]
 
@@ -383,7 +383,7 @@ class P3S_TD3(MARLAlgorithm, Serializable):
         target_params = self._best_actor.policy_params()
 
         copy_best_ops = [
-            tf.assign(target, source)
+            tf.compat.v1.assign(target, source)
             for target, source in zip(target_params, source_params)
         ]
 

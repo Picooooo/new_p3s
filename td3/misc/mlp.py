@@ -7,7 +7,7 @@ from td3.misc import tf_utils
 
 WEIGHT_DEFAULT_NAME = "weights"
 BIAS_DEFAULT_NAME = "bias"
-
+tf.compat.v1.disable_resource_variables()
 
 def _weight_variable(
         shape,
@@ -22,9 +22,9 @@ def _weight_variable(
     :param shape: Variable shape.
     """
     if initializer is None:
-        initializer = tf.contrib.layers.xavier_initializer()
+        initializer = tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform")
 
-    var = tf.get_variable(name, shape, initializer=initializer)
+    var = tf.compat.v1.get_variable(name, shape, initializer=initializer)
     return var
 
 
@@ -41,7 +41,7 @@ def _bias_variable(
     :param shape: Variable shape.
     """
     if initializer is None:
-        initializer = tf.constant_initializer(0.)
+        initializer = tf.compat.v1.constant_initializer(0.)
 
     return _weight_variable(shape,
                             initializer=initializer,
@@ -68,7 +68,7 @@ def affine(
     :param bias_name: Name of the bias.
     :return: Tensor defined as input.dot(weight) + bias.
     """
-    input_size = inp.get_shape()[-1].value
+    input_size = inp.get_shape()[-1]
     W = _weight_variable([input_size, units],
                          initializer=W_initializer,
                          name=W_name)
@@ -128,10 +128,10 @@ def mlp(inputs,
 
     # Take care of the input layer separately to make use of broadcasting in
     # a case of several input tensors.
-    with tf.variable_scope('layer0'):
+    with tf.compat.v1.variable_scope('layer0'):
         layer = _bias_variable(layer_sizes[0], b_initializer)
         for i, inp in enumerate(inputs):
-            with tf.variable_scope('input' + str(i)):
+            with tf.compat.v1.variable_scope('input' + str(i)):
                 layer += affine(
                     inp=inp,
                     units=layer_sizes[0],
@@ -143,7 +143,7 @@ def mlp(inputs,
         layer = nonlinearity(layer)
 
     for i_layer, size in enumerate(layer_sizes[1:], 1):
-        with tf.variable_scope('layer{0}'.format(i_layer)):
+        with tf.compat.v1.variable_scope('layer{0}'.format(i_layer)):
             layer = affine(layer, size,
                            W_initializer=W_initializer,
                            b_initializer=b_initializer)
@@ -173,7 +173,7 @@ class MLPFunction(Parameterized, Serializable):
         self._output_t = self.get_output_for(*self._input_pls)
 
     def get_output_for(self, *inputs, reuse=False):
-        with tf.variable_scope(self._name, reuse=reuse):
+        with tf.compat.v1.variable_scope(self._name, reuse=reuse):
             value_t = mlp(
                 inputs=inputs,
                 output_nonlinearity=self._output_nonlinearity,
@@ -191,11 +191,11 @@ class MLPFunction(Parameterized, Serializable):
         if len(tags) > 0:
             raise NotImplementedError
 
-        scope = tf.get_variable_scope().name
+        scope = tf.compat.v1.get_variable_scope().name
         scope += '/' + self._name + '/' if len(scope) else self._name + '/'
 
-        return tf.get_collection(
-            tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope
+        return tf.compat.v1.get_collection(
+            tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES, scope=scope
         )
 
     @property

@@ -35,3 +35,29 @@ def plot_all_experiments(log_folder, env_name):
     plt.fill_between(x, (mean-ci), (mean+ci), color='blue', alpha=0.1)
     plt.legend()
     plt.savefig("./results/" + name)
+
+def plot_one_experiments(log_folder, env_name, seed):
+    log_file = log_folder + 'iter' + str(seed)
+    df = pd.DataFrame()
+    
+    newpath = log_file + '/progress.csv'
+    df.insert(0, 0, pd.read_csv(newpath)['return-average'][:1000])
+
+    mean = []
+    std = []
+    x = []
+    epoch = df.shape[0]
+    for i in range(epoch):
+        x.append(i*1000)
+        mean.append(df.iloc[i].sum()/1)
+        std.append(np.std(df.iloc[i]))
+
+    ci = 1.96 * np.array(std)/np.sqrt(epoch)
+    name = str(env_name)
+    plt.plot(x, mean, label="P3S-td3")
+    plt.xlabel("Number of steps")
+    plt.ylabel("Score")
+    plt.title(name)
+    plt.fill_between(x, (mean-ci), (mean+ci), color='blue', alpha=0.1)
+    plt.legend()
+    plt.savefig("./results/" + name + "/" + str(seed))

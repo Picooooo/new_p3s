@@ -14,7 +14,7 @@ class NNPolicy(Policy, Serializable):
         self._observations_ph = observation_ph
         self._actions = actions
         self._scope_name = (
-            tf.get_variable_scope().name if not scope_name else scope_name
+            tf.compat.v1.get_variable_scope().name if not scope_name else scope_name
         )
         super(NNPolicy, self).__init__(env_spec)
 
@@ -27,7 +27,7 @@ class NNPolicy(Policy, Serializable):
     def get_actions(self, observations):
         """Sample actions based on the observations."""
         feed_dict = {self._observations_ph: observations}
-        actions = tf.get_default_session().run(self._actions, feed_dict)
+        actions = tf.compat.v1.get_default_session().run(self._actions, feed_dict)
         return actions
 
     @overrides
@@ -42,4 +42,4 @@ class NNPolicy(Policy, Serializable):
         # Add "/" to 'scope' unless it's empty (otherwise get_collection will
         # return all parameters that start with 'scope'.
         scope = scope if scope == '' else scope + '/'
-        return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
+        return tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES, scope)

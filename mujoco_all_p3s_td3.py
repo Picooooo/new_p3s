@@ -23,6 +23,8 @@ from td3.value_functions import NNQFunction, NNVFunction
 from variants_p3s import parse_domain_and_task, get_variants
 from td3.actors.actors import Actor
 from plot import plot_all_experiments
+from plot import plot_one_experiments
+
 
 ENVIRONMENTS = {
     'ant': {
@@ -77,7 +79,7 @@ def parse_args():
     parser.add_argument('--exp_name', type=str, default=timestamp())
     parser.add_argument('--mode', type=str, default='local')
     parser.add_argument('--seed', type=int)
-    parser.add_argument('--step', type=int, default=1e6)
+    #parser.add_argument('--step', type=int, default=1e6)
     args = parser.parse_args()
 
     env_name = args.env
@@ -153,7 +155,7 @@ def run_experiment(variant):
         save_full_state=False,
     )
 
-    algorithm._sess.run(tf.global_variables_initializer())
+    algorithm._sess.run(tf.compat.v1.global_variables_initializer())
 
     algorithm.train()
 
@@ -200,7 +202,7 @@ def main():
 
     variant_generator = get_variants(domain=domain, task=task, policy=args.policy)
     launch_experiments(variant_generator, args)
-    plot_all_experiments(args.log_dir, args.env)
+    plot_one_experiments(args.log_dir, args.env, args.seed)
 
 def _init_placeholder(env):
     Da = env.action_space.flat_dim
@@ -234,7 +236,7 @@ def _init_placeholder(env):
 def init_actor(actor, pool, dict_ph, env, num_q, value_fn_params, noise_params):
     M1 = value_fn_params['layer_size1']
     M2 = value_fn_params['layer_size2']
-    with tf.variable_scope(actor.name):
+    with tf.compat.v1.variable_scope(actor.name):
         policy = DeterministicPolicy(
             env_spec=env.spec,
             hidden_layer_sizes=(M1, M2),

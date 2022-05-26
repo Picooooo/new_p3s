@@ -235,7 +235,7 @@ class MARLAlgorithm(Algorithm):
         if self._eval_n_episodes > 0:
             # TODO: This is horrible. Don't do this. Get rid of this.
             import tensorflow as tf
-            with tf.variable_scope("low_level_policy", reuse=False):
+            with tf.compat.v1.variable_scope("low_level_policy", reuse=False):
                 self._eval_env = [deep_clone(env_t) for env_t in self._env.envs]
                 # self._eval_env = self._env
         self._arr_actor = arr_actor

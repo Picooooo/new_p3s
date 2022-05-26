@@ -1,16 +1,16 @@
 import tensorflow as tf
 from rllab import config
 
-
+tf.compat.v1.disable_eager_execution()
 def get_default_session():
-    return tf.get_default_session() or create_session()
+    return tf.compat.v1.get_default_session() or create_session()
 
 
 def create_session(**kwargs):
     """ Create new tensorflow session with given configuration. """
     if "config" not in kwargs:
         kwargs["config"] = get_configuration()
-    return tf.InteractiveSession(**kwargs)
+    return tf.compat.v1.InteractiveSession(**kwargs)
 
 
 def get_configuration():
@@ -19,7 +19,7 @@ def get_configuration():
         raise NotImplementedError
 
     config_args = dict()
-    return tf.ConfigProto(**config_args)
+    return tf.compat.v1.ConfigProto(**config_args)
 
 
 
@@ -39,7 +39,7 @@ def get_placeholder(name, dtype, shape):
         assert dtype1 == dtype and shape1 == shape
         return out
     else:
-        out = tf.placeholder(dtype=dtype, shape=shape, name=name)
+        out = tf.compat.v1.placeholder(dtype=dtype, shape=shape, name=name)
         _PLACEHOLDER_CACHE[name] = (out, dtype, shape)
         return out
 
